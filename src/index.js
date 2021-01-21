@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'semantic-ui-less/semantic.less';
+import { QueryClientProvider } from 'react-query';
+
 import './index.scss';
 import App from './components/App';
+import queryClient from './queryClient';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );

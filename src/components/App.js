@@ -1,13 +1,15 @@
+import {
+  Container,
+} from 'semantic-ui-react';
 import './App.scss';
+import TaskInput from './TaskInput';
+import TaskList from './TaskList';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        TEST
-      </header>
-    </div>
-  );
-}
+const App = () => (
+  <Container>
+    <TaskInput />
+    <TaskList />
+  </Container>
+);
 
 export default App;
