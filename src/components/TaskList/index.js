@@ -3,6 +3,7 @@ import {
   Segment, Table,
 } from 'semantic-ui-react';
 import TaskLine from '../TaskLine';
+import TaskVisualiser from '../TaskVisualiser';
 
 export default () => {
   const { isLoading, error, data } = useQuery('taskData', async () => {
@@ -19,17 +20,20 @@ export default () => {
   }
 
   return (
-    <Segment textAlign="center">
-      <Table basic="very">
-        <Table.Body>
-          {data.map((task) => {
-            if (task.active) {
-              return <TaskLine task={task} key={task.id} />;
-            }
-            return null;
-          })}
-        </Table.Body>
-      </Table>
-    </Segment>
+    <>
+      <Segment textAlign="center">
+        <Table basic="very">
+          <Table.Body>
+            {data.map((task) => {
+              if (task.active) {
+                return <TaskLine task={task} key={task.id} />;
+              }
+              return null;
+            })}
+          </Table.Body>
+        </Table>
+      </Segment>
+      <TaskVisualiser tasks={data} />
+    </>
   );
 };

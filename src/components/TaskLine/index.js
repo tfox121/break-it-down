@@ -29,7 +29,6 @@ export default ({ task }) => {
       const res = await fetch(`${process.env.REACT_APP_SERVER}/tasks/${task.parentId}`);
       const parentTask = await res.json();
 
-      console.log({ ...parentTask, active: true });
       subTaskEdit.mutate({ ...parentTask, active: true });
     }
     subTaskEdit.mutate({ ...task, complete: true, active: false });
