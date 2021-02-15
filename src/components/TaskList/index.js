@@ -19,10 +19,15 @@ export default () => {
   }
 
   return (
-    <Segment>
-      <Table basic="very" collapsing>
+    <Segment textAlign="center">
+      <Table basic="very">
         <Table.Body>
-          {data.map((task) => <TaskLine task={task} />)}
+          {data.map((task) => {
+            if (task.active) {
+              return <TaskLine task={task} key={task.id} />;
+            }
+            return null;
+          })}
         </Table.Body>
       </Table>
     </Segment>

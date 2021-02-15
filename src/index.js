@@ -9,11 +9,9 @@ import queryClient from './queryClient';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </React.StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>,
   document.getElementById('root'),
 );
 

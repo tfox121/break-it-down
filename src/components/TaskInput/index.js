@@ -4,11 +4,12 @@ import { useMutation } from 'react-query';
 import {
   Form, Header, Input, Segment,
 } from 'semantic-ui-react';
+import queryClient from '../../queryClient';
 
 export default () => {
   const [task, setTask] = useState('');
 
-  const taskMutation = useMutation((newTask) => axios.post(`${process.env.REACT_APP_SERVER}/tasks`, newTask));
+  const newTaskSubmit = useMutation((newTask) => axios.post(`${process.env.REACT_APP_SERVER}/tasks`, newTask));
 
   const addTaskResult = (mutation) => {
     <div>
@@ -34,8 +35,19 @@ export default () => {
       <Header>Break It Down</Header>
       <Form
         onSubmit={() => {
-          taskMutation.mutate({ id: new Date(), title: task });
+          newTaskSubmit.mutate({
+            createdOn: new Date(),
+            title: task,
+            complete: false,
+            ancestors: [],
+            children: [],
+            parentId: null,
+            active: true,
+          });
           setTask('');
+          setTimeout(() => {
+            queryClient.invalidateQueries('taskData');
+          }, 1000);
         }}
       >
         <Input
@@ -47,7 +59,7 @@ export default () => {
           value={task}
           onChange={(e) => setTask(e.target.value)}
         />
-        {addTaskResult(taskMutation)}
+        {addTaskResult(newTaskSubmit)}
       </Form>
     </Segment>
   );

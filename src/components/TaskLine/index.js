@@ -17,23 +17,38 @@ export default ({ task }) => {
   const hash = md5(task.title);
   const icon = new Identicon(hash, 420).toString();
 
-  const subTaskEdit = useMutation((editedTask) => axios.put(`${process.env.REACT_APP_SERVER}/tasks/${task.id}`, editedTask));
+  const newTaskSubmit = useMutation((newTask) => axios.post(`${process.env.REACT_APP_SERVER}/tasks`, newTask));
 
-  const taskComplete = useMutation(() => axios.delete(`${process.env.REACT_APP_SERVER}/tasks/${task.id}`));
+  const subTaskEdit = useMutation((editedTask) => axios.patch(
+    `${process.env.REACT_APP_SERVER}/tasks/${editedTask.id}`,
+    editedTask,
+  ));
 
   const handleComplete = async () => {
-    if (task.parentTask) {
-      subTaskEdit.mutate(task.parentTask);
-    } else {
-      taskComplete.mutate();
+    if (task.parentId) {
+      const res = await fetch(`${process.env.REACT_APP_SERVER}/tasks/${task.parentId}`);
+      const parentTask = await res.json();
+
+      console.log({ ...parentTask, active: true });
+      subTaskEdit.mutate({ ...parentTask, active: true });
     }
+    subTaskEdit.mutate({ ...task, complete: true, active: false });
     setTimeout(() => {
       queryClient.invalidateQueries('taskData');
     }, 1000);
   };
 
   const handleSubmit = () => {
-    subTaskEdit.mutate({ title: subTask, parentTask: task });
+    newTaskSubmit.mutate({
+      createdOn: new Date(),
+      title: subTask,
+      complete: false,
+      children: [],
+      ancestors: [...task.ancestors, task.id],
+      parentId: task.id,
+      active: true,
+    });
+    subTaskEdit.mutate({ ...task, children: [...task.children, subTask], active: false });
     setTimeout(() => {
       queryClient.invalidateQueries('taskData');
     }, 1000);
@@ -48,12 +63,18 @@ export default ({ task }) => {
           <Header as="h4" image>
             <Image src={`data:image/png;base64,${icon}`} rounded size="mini" />
             <Header.Content>
-              {task.title}
-              <Header.Subheader>{timeAgo(task.id)}</Header.Subheader>
+              {task.currentTask ? task.currentTask.title : task.title}
+              <Header.Subheader>
+                {timeAgo(
+                  task.currentTask
+                    ? task.currentTask.createdOn
+                    : task.createdOn,
+                )}
+              </Header.Subheader>
             </Header.Content>
           </Header>
         </Table.Cell>
-        <Table.Cell textAlign="right" width={breakingDown ? 1 : 3}>
+        <Table.Cell textAlign="right" width={3}>
           {breakingDown ? (
             <>
               <Button
@@ -74,11 +95,9 @@ export default ({ task }) => {
           <Button icon="check" color="green" onClick={handleComplete} />
         </Table.Cell>
       </Table.Row>
-      <Table.Row style={{ display: breakingDown ? 'block' : 'none' }}>
-        <Table.Cell width={16}>
-          <Form
-            onSubmit={handleSubmit}
-          >
+      <Table.Row style={{ display: breakingDown ? 'table-row' : 'none' }}>
+        <Table.Cell width={6}>
+          <Form onSubmit={handleSubmit}>
             <Input
               placeholder="What's the next step...?"
               action={{
@@ -90,6 +109,8 @@ export default ({ task }) => {
             />
           </Form>
         </Table.Cell>
+        <Table.Cell width={6} />
+        <Table.Cell />
       </Table.Row>
     </>
   );
